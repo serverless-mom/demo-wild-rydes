@@ -46,19 +46,19 @@ Resources:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Function2.Arn}/invocations
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RequestRide.Arn}/invocations
               responses: {}
       EndpointConfiguration: REGIONAL
-  Function2:
+  RequestRide:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub ${AWS::StackName}-Function2
+      FunctionName: !Sub ${AWS::StackName}-RequestRide
       Description: !Sub
         - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
-        - ResourceName: Function2
-      CodeUri: src/Function2
-      Handler: index.handler
-      Runtime: nodejs8.10
+        - ResourceName: Request Ride
+      CodeUri: Handlers/RequestRide
+      Handler: handler.request_ride
+      Runtime: python3.6
       MemorySize: 3008
       Timeout: 30
       Tracing: Active
@@ -71,6 +71,8 @@ Resources:
             Path: /ride
             Method: POST
             RestApiId: !Ref Api
+    Metadata:
+      StackeryName: Request Ride
 Parameters:
   StackTagName:
     Type: String
