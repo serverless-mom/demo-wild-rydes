@@ -1,29 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Resources:
-  Function:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub ${AWS::StackName}-Function
-      Description: !Sub
-        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
-        - ResourceName: populate-s3-bucket
-      CodeUri: src/Function
-      Handler: index.handler
-      Runtime: nodejs8.10
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Policies:
-        - AWSXrayWriteOnlyAccess
-        - S3CrudPolicy:
-            BucketName: !Ref ObjectStore
-      Environment:
-        Variables:
-          BUCKET_NAME: !Ref ObjectStore
-          BUCKET_ARN: !GetAtt ObjectStore.Arn
-    Metadata:
-      StackeryName: populate-s3-bucket
   ObjectStore:
     Type: AWS::S3::Bucket
     Properties:
@@ -73,6 +50,29 @@ Resources:
             RestApiId: !Ref Api
     Metadata:
       StackeryName: Request Ride
+  PopulateS3Bucket:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-PopulateS3Bucket
+      Description: !Sub
+        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
+        - ResourceName: populate-s3-bucket
+      CodeUri: src/PopulateS3
+      Handler: index.handler
+      Runtime: nodejs8.10
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+        - S3CrudPolicy:
+            BucketName: !Ref ObjectStore
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref ObjectStore
+          BUCKET_ARN: !GetAtt ObjectStore.Arn
+    Metadata:
+      StackeryName: populate-s3-bucket
 Parameters:
   StackTagName:
     Type: String
