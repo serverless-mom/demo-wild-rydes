@@ -20,6 +20,10 @@ Resources:
         paths:
           /ride:
             post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RequestRides.Arn}/invocations
               responses: {}
       EndpointConfiguration: REGIONAL
   PopulateS3Bucket:
@@ -45,6 +49,30 @@ Resources:
           BUCKET_ARN: !GetAtt ObjectStore.Arn
     Metadata:
       StackeryName: populate-s3-bucket
+  RequestRides:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-RequestRides
+      Description: !Sub
+        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
+        - ResourceName: request ride
+      CodeUri: handlers/requestRide
+      Handler: handler.request_ride
+      Runtime: python3.6
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+      Events:
+        ApiPOSTride:
+          Type: Api
+          Properties:
+            Path: /ride
+            Method: POST
+            RestApiId: !Ref Api
+    Metadata:
+      StackeryName: request ride
 Parameters:
   StackTagName:
     Type: String
